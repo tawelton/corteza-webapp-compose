@@ -5,13 +5,12 @@
           :record="record"
           v-if="record" edit-mode />
     <toolbar :back-link="{name: 'admin.pages'}"
-             :read-only="!module.canUpdateRecord"
-             :hide-delete="true">
+             :read-only="!module.canUpdateRecord">
       <div class="d-inline-block text-white">_</div>
       <b-button v-if="module.canCreateRecord"
                 variant="primary"
                 class="float-right"
-                :disabled="!record.isValid()"
+                :disabled="!record.isValid() || processing"
                 @click.prevent="handleCreate">{{ $t('general.label.save') }}</b-button>
     </toolbar>
   </div>
@@ -62,6 +61,7 @@ export default {
   data () {
     return {
       record: null,
+      processing: false,
     }
   },
 
@@ -88,11 +88,15 @@ export default {
 
   methods: {
     handleCreate () {
+      this.processing = true
       this.createRecord(this.namespace, this.module, this.record)
         .then((record) => {
           this.$router.push({ name: 'page.record', params: { ...this.$route.params, recordID: record.recordID } })
         })
-        .catch(this.defaultErrorHandler(this.$t('notification.record.createFailed')))
+        .catch(err => {
+          this.processing = false
+          this.defaultErrorHandler(this.$t('notification.record.createFailed'))(err)
+        })
     },
   },
 }

@@ -6,7 +6,6 @@
       <span v-if="readOnly">&#171; {{ $t('general.label.back') }}</span>
       <span v-else>&#171; {{ $t('general.label.backWithoutSave') }}</span>
     </b-button>
-    <confirmation-toggle v-if="!hideDelete" @confirmed="$emit('delete')" class="confirmation">{{ $t('general.label.delete') }}</confirmation-toggle>
     <slot></slot>
   </div>
 </template>

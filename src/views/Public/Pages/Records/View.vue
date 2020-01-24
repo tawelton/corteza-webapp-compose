@@ -14,25 +14,35 @@
           v-if="record"
           @reload="loadRecord()" />
     <toolbar :back-link="{name: 'pages'}"
-             :hide-delete="!module.canDeleteRecord || isDeleted"
-             :read-only="!module.canUpdateRecord || isDeleted"
-             @delete="handleDelete"
-             @save="handleUpdate()">
+             :read-only="!module.canUpdateRecord || isDeleted">
+
+      <confirmation-toggle
+        v-if="module.canDeleteRecord && !isDeleted"
+        @confirmed="handleDelete"
+        class="confirmation"
+        :disabled="processing"
+      >
+        {{ $t('general.label.delete') }}
+      </confirmation-toggle>
 
       <b-button v-if="module.canCreateRecord"
           variant="outline-secondary ml-1"
+          :disabled="processing"
           @click.prevent="$router.push({ name: 'page.record.create', params: { pageID: page.pageID, values: record.values }})" >{{ $t('general.label.clone') }}</b-button>
 
       <b-button v-if="module.canCreateRecord"
                 variant="outline-secondary ml-1"
+                :disabled="processing"
                 @click.prevent="$router.push({ name: 'page.record.create', params: $route.params })">+ {{ $t('general.label.addNew') }}</b-button>
 
       <b-button v-if="!isDeleted && !editMode && module.canUpdateRecord"
-                variant="outline-secondary ml-1"
+                variant="outline-secondary"
+                :disabled="processing"
+                class="outline-secondary ml-1"
                 @click.prevent="$router.push({ name: 'page.record.edit', params: $route.params })" >{{ $t('general.label.edit') }}</b-button>
 
       <b-button v-if="module.canUpdateRecord && editMode"
-                :disabled="!record || !record.isValid()"
+                :disabled="!record || !record.isValid() || processing"
                 @click.prevent="handleUpdate"
                 class="float-right ml-1"
                 variant="primary"
@@ -92,6 +102,7 @@ export default {
       // We handle edit mode here because EditRecord components
       // is extending us
       editMode: false,
+      processing: false,
     }
   },
 
@@ -124,13 +135,24 @@ export default {
   },
 
   methods: {
+    isProcessing () {
+      this.processing = true
+    },
+    isProcessed () {
+      this.processing = false
+    },
+
     loadRecord () {
+      this.isProcessing()
       this.record = null
       if (this.page && this.recordID && this.page.moduleID) {
         const { namespaceID, moduleID } = this.page
-        this.$ComposeAPI.recordRead({ namespaceID, moduleID, recordID: this.recordID }).then(record => {
-          this.record = new Record(this.module, record)
-        }).catch(this.defaultErrorHandler(this.$t('notification.record.loadFailed')))
+        this.$ComposeAPI.recordRead({ namespaceID, moduleID, recordID: this.recordID })
+          .then(record => {
+            this.record = new Record(this.module, record)
+          })
+          .catch(this.defaultErrorHandler(this.$t('notification.record.loadFailed')))
+          .finally(() => this.isProcessed())
       }
     },
 
@@ -139,11 +161,15 @@ export default {
      * has been deleted.
      */
     handleDelete () {
+      this.isProcessing()
       this.deleteRecord(this.namespace, this.module, this.record)
         .then((e) => {
           this.record.deletedAt = (new Date()).toISOString()
         })
         .catch(this.defaultErrorHandler(this.$t('notification.record.deleteFailed')))
+        .finally(() => {
+          this.isProcessed()
+        })
     },
 
     handleBack () {

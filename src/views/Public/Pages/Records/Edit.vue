@@ -24,11 +24,13 @@ export default {
 
   methods: {
     handleUpdate () {
+      this.isProcessing()
       this.updateRecord(this.namespace, this.module, this.record)
         .then((record) => {
           this.$router.push({ name: 'page.record', params: { ...this.$route.params } })
         })
         .catch(this.defaultErrorHandler(this.$t('notification.record.updateFailed')))
+        .finally(() => this.isProcessed())
     },
 
     handleBack () {
