@@ -78,9 +78,9 @@ export default {
           image: images.Record,
         },
         {
-          label: this.$t('block.recorder.label'),
-          recordPageOnly: false,
-          block: new compose.PageBlockRecorder(),
+          label: this.$t('block.recordLines.label'),
+          recordPageOnly: true,
+          block: new compose.PageBlockRecordLines(),
           image: images.Content,
         },
         {

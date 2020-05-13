@@ -63,6 +63,11 @@ export default {
       default: () => [],
     },
 
+    disableSystemFields: {
+      type: Boolean,
+      default: false,
+    },
+
     systemFields: {
       type: Array,
       default: null,
@@ -101,12 +106,17 @@ export default {
     },
 
     availableFields () {
-      const fields = [...this.allFields]
+      let fields = [...this.allFields]
 
       // Remove selected fields
-      return fields.filter(a =>
+      fields = fields.filter(a =>
         !this.fields.find(f => a.name === f.name),
       )
+
+      if (this.disableSystemFields) {
+        fields = fields.filter(a => !a.isSystem)
+      }
+      return fields
     },
   },
 
