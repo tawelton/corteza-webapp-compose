@@ -22,6 +22,8 @@ import RecordOrganizerBase from './RecordOrganizerBase'
 import RecordOrganizerConfigurator from './RecordOrganizerConfigurator'
 import SocialFeedBase from './SocialFeedBase'
 import SocialFeedConfigurator from './SocialFeedConfigurator'
+import RecorderBase from './RecorderBase'
+import RecorderConfigurator from './RecorderConfigurator'
 
 /**
  * List of all known page block components
@@ -49,6 +51,8 @@ const Registry = {
   RecordOrganizerConfigurator,
   SocialFeedBase,
   SocialFeedConfigurator,
+  RecorderBase,
+  RecorderConfigurator,
 }
 
 const defaultMode = 'Base'
